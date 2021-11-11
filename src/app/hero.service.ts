@@ -3,12 +3,16 @@ import { Hero } from './hero';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, of, tap } from 'rxjs';
 import { MessageService } from './message.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeroService {
+  private readonly httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
   private readonly apiRoot = 'http://localhost:3000';
   private readonly heroesUrl = `${this.apiRoot}/heroes`;
 
@@ -31,6 +35,18 @@ export class HeroService {
       tap(() => this.log(`fetched hero id=${id}`)),
       catchError(() => {
         this.log(`error fetching hero id=${id}`);
+        return of(undefined)
+      })
+    );
+  }
+
+  updateHero(hero: Hero): Observable<void> {
+    const url = `${this.heroesUrl}/${hero.id}`;
+
+    return this.http.put<void>(url, hero, this.httpOptions).pipe(
+      tap(() => this.log(`update hero id=${hero.id}`)),
+      catchError(() => {
+        this.log(`error updating hero id=${hero.id}`);
         return of(undefined)
       })
     );
