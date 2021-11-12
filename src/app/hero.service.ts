@@ -3,12 +3,16 @@ import { Hero } from './hero';
 import { Observable } from 'rxjs/internal/Observable';
 import { catchError, of, tap } from 'rxjs';
 import { MessageService } from './message.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeroService {
+  private readonly httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  };
+
   private readonly apiRoot = 'http://localhost:3000';
   private readonly heroesUrl = `${this.apiRoot}/heroes`;
 
@@ -31,6 +35,40 @@ export class HeroService {
       tap(() => this.log(`fetched hero id=${id}`)),
       catchError(() => {
         this.log(`error fetching hero id=${id}`);
+        return of(undefined)
+      })
+    );
+  }
+
+  updateHero(hero: Hero): Observable<void> {
+    const url = `${this.heroesUrl}/${hero.id}`;
+
+    return this.http.put<void>(url, hero, this.httpOptions).pipe(
+      tap(() => this.log(`update hero id=${hero.id}`)),
+      catchError(() => {
+        this.log(`error updating hero id=${hero.id}`);
+        return of(undefined)
+      })
+    );
+  }
+
+  addHero(hero: Hero): Observable<Hero | undefined> {
+    return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe(
+      tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
+      catchError(() => {
+        this.log(`error adding hero name=${hero.name}`);
+        return of(undefined)
+      })
+    );
+  }
+
+  deleteHero(id: number): Observable<Hero | undefined> {
+    const url = `${this.heroesUrl}/${id}`;
+
+    return this.http.delete<Hero>(url, this.httpOptions).pipe(
+      tap(() => this.log(`deleted hero id=${id}`)),
+      catchError(() => {
+        this.log(`error deleting hero id=${id}`);
         return of(undefined)
       })
     );

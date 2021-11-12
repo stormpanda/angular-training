@@ -13,6 +13,10 @@ label {
     padding: 1rem;
     border-radius: 4px;
     font-size: 1rem;
+
+    + button {
+        margin-left: 10px;
+    }
   }
   button:hover {
     background-color: #cfd8dc;
