@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Hero } from '../hero';
-import { HeroService } from '../hero.service';
 import { Location } from '@angular/common';
 import { filter, map, Observable, switchMap } from 'rxjs';
+import { Hero } from 'src/app/hero';
+import { HeroService } from 'src/app/hero.service';
 
 @Component({
   selector: 'app-hero-detail',
