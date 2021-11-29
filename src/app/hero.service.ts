@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Hero } from './hero';
 import { Observable } from 'rxjs/internal/Observable';
-import { catchError, of, tap } from 'rxjs';
+import { BehaviorSubject, catchError, of, tap } from 'rxjs';
 import { MessageService } from './message.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -16,16 +16,19 @@ export class HeroService {
   private readonly apiRoot = 'http://localhost:3000';
   private readonly heroesUrl = `${this.apiRoot}/heroes`;
 
+  private readonly heroesSubject = new BehaviorSubject<Hero[]>([]);
+  public readonly heroes$ = this.heroesSubject.asObservable();
+
   constructor(private messageService: MessageService, private http: HttpClient) { }
 
-  getHeroes(): Observable<Hero[]> {
-    return this.http.get<Hero[]>(this.heroesUrl).pipe(
+  loadHeroes(): void {
+    this.http.get<Hero[]>(this.heroesUrl).pipe(
       tap(() => this.log('fetched heroes')),
       catchError(() => {
         this.log('error fetching heroes');
         return of([])
       })
-    );
+    ).subscribe(heroes => this.heroesSubject.next(heroes));
   }
 
   getHero(id: number): Observable<Hero | undefined> {
